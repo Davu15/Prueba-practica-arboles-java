@@ -1,4 +1,3 @@
-package src.java;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -8,6 +7,7 @@ public class ArbolBinario {
 
     // INSERTAR
     public void insertarEstudiante(Estudiante estudiante) {
+
         raiz = insertarRecursivo(raiz, estudiante);
     }
 
@@ -18,9 +18,14 @@ public class ArbolBinario {
         }
 
         if (estudiante.cedula.compareTo(actual.estudiante.cedula) < 0) {
-            actual.izquierda = insertarRecursivo(actual.izquierda, estudiante);
-        } else {
-            actual.derecha = insertarRecursivo(actual.derecha, estudiante);
+
+            actual.izquierda =
+                    insertarRecursivo(actual.izquierda, estudiante);
+
+        } else if (estudiante.cedula.compareTo(actual.estudiante.cedula) > 0) {
+
+            actual.derecha =
+                    insertarRecursivo(actual.derecha, estudiante);
         }
 
         return actual;
@@ -49,13 +54,76 @@ public class ArbolBinario {
         }
 
         if (cedula.compareTo(actual.estudiante.cedula) < 0) {
+
             return buscarRecursivo(actual.izquierda, cedula);
+
         } else {
+
             return buscarRecursivo(actual.derecha, cedula);
         }
     }
 
-    // RECORRIDO INORDEN
+    // ELIMINAR
+    public void eliminarEstudiante(String cedula) {
+
+        raiz = eliminarRecursivo(raiz, cedula);
+    }
+
+    private Nodo eliminarRecursivo(Nodo actual, String cedula) {
+
+        if (actual == null) {
+            return null;
+        }
+
+        if (cedula.compareTo(actual.estudiante.cedula) < 0) {
+
+            actual.izquierda =
+                    eliminarRecursivo(actual.izquierda, cedula);
+
+        } else if (cedula.compareTo(actual.estudiante.cedula) > 0) {
+
+            actual.derecha =
+                    eliminarRecursivo(actual.derecha, cedula);
+
+        } else {
+
+            // SIN HIJOS
+            if (actual.izquierda == null && actual.derecha == null) {
+                return null;
+            }
+
+            // UN HIJO
+            if (actual.izquierda == null) {
+                return actual.derecha;
+            }
+
+            if (actual.derecha == null) {
+                return actual.izquierda;
+            }
+
+            // DOS HIJOS
+            Nodo menor = obtenerMenor(actual.derecha);
+
+            actual.estudiante = menor.estudiante;
+
+            actual.derecha =
+                    eliminarRecursivo(actual.derecha,
+                            menor.estudiante.cedula);
+        }
+
+        return actual;
+    }
+
+    private Nodo obtenerMenor(Nodo actual) {
+
+        while (actual.izquierda != null) {
+            actual = actual.izquierda;
+        }
+
+        return actual;
+    }
+
+    // INORDEN
     public void recorridoInorden() {
         inorden(raiz);
     }
@@ -65,7 +133,9 @@ public class ArbolBinario {
         if (actual != null) {
 
             inorden(actual.izquierda);
+
             actual.estudiante.mostrarDatos();
+
             inorden(actual.derecha);
         }
     }
@@ -80,7 +150,9 @@ public class ArbolBinario {
         if (actual != null) {
 
             actual.estudiante.mostrarDatos();
+
             preorden(actual.izquierda);
+
             preorden(actual.derecha);
         }
     }
@@ -95,7 +167,9 @@ public class ArbolBinario {
         if (actual != null) {
 
             postorden(actual.izquierda);
+
             postorden(actual.derecha);
+
             actual.estudiante.mostrarDatos();
         }
     }
@@ -108,6 +182,7 @@ public class ArbolBinario {
         }
 
         Queue<Nodo> cola = new LinkedList<>();
+
         cola.add(raiz);
 
         while (!cola.isEmpty()) {
@@ -137,7 +212,9 @@ public class ArbolBinario {
             return 0;
         }
 
-        return 1 + contar(actual.izquierda) + contar(actual.derecha);
+        return 1
+                + contar(actual.izquierda)
+                + contar(actual.derecha);
     }
 
     // ALTURA
@@ -152,8 +229,99 @@ public class ArbolBinario {
         }
 
         int izquierda = altura(actual.izquierda);
+
         int derecha = altura(actual.derecha);
 
         return Math.max(izquierda, derecha) + 1;
+    }
+
+    // MAYOR NOTA
+    public Estudiante buscarNotaMayor() {
+
+        return notaMayor(raiz, raiz.estudiante);
+    }
+
+    private Estudiante notaMayor(Nodo actual,
+                                 Estudiante mayor) {
+
+        if (actual != null) {
+
+            if (actual.estudiante.notaFinal > mayor.notaFinal) {
+
+                mayor = actual.estudiante;
+            }
+
+            mayor = notaMayor(actual.izquierda, mayor);
+
+            mayor = notaMayor(actual.derecha, mayor);
+        }
+
+        return mayor;
+    }
+
+    // MENOR NOTA
+    public Estudiante buscarNotaMenor() {
+
+        return notaMenor(raiz, raiz.estudiante);
+    }
+
+    private Estudiante notaMenor(Nodo actual,
+                                 Estudiante menor) {
+
+        if (actual != null) {
+
+            if (actual.estudiante.notaFinal < menor.notaFinal) {
+
+                menor = actual.estudiante;
+            }
+
+            menor = notaMenor(actual.izquierda, menor);
+
+            menor = notaMenor(actual.derecha, menor);
+        }
+
+        return menor;
+    }
+
+    // APROBADOS
+    public void mostrarAprobados() {
+
+        aprobados(raiz);
+    }
+
+    private void aprobados(Nodo actual) {
+
+        if (actual != null) {
+
+            aprobados(actual.izquierda);
+
+            if (actual.estudiante.notaFinal >= 7) {
+
+                actual.estudiante.mostrarDatos();
+            }
+
+            aprobados(actual.derecha);
+        }
+    }
+
+    // REPROBADOS
+    public void mostrarReprobados() {
+
+        reprobados(raiz);
+    }
+
+    private void reprobados(Nodo actual) {
+
+        if (actual != null) {
+
+            reprobados(actual.izquierda);
+
+            if (actual.estudiante.notaFinal < 7) {
+
+                actual.estudiante.mostrarDatos();
+            }
+
+            reprobados(actual.derecha);
+        }
     }
 }
